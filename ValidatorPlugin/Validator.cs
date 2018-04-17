@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Text;
 using System.Diagnostics;
 using Antmicro.Renode.Logging;
 using Antmicro.Renode.Peripherals.CPU;
-
+using Antmicro.Renode.Utilities;
 
 namespace Antmicro.Renode.Plugins.ValidatorPlugin
 {
@@ -71,6 +72,11 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             Validator.SimPerformance = true;;
         } 
         
+        public static void StartStatusServer(this TranslationCPU cpu, int port)
+        {
+            Validator.Instance.StartStatusServer(port);
+        } 
+        
     }
 
     public class Validator
@@ -124,6 +130,9 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                       cpu.Pause();
                       }
 
+                      SendStatusMessage(cpu.PolicyViolationMsg());
+                      SendStatusMessage("MSG: End test.\n");
+
                     //cpu.ReportAbort("Policy violation");
                 }
                 else
@@ -157,6 +166,26 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             cpu.SetHookAtBlockBegin(BlockBeginHook);
         }
 
+        public void StartStatusServer(int port)
+        {
+            validatorStatusServer = new SocketServerProvider();
+            validatorStatusServer.Start(port);
+            cpu.Log(LogLevel.Info, "Starting Validator Status Server on port: {0}", port);
+        }
+
+        private void SendStatusMessage(String msg)
+        {
+            if(validatorStatusServer != null)
+            {
+                Byte[] bytes = Encoding.ASCII.GetBytes(msg);
+                foreach(var b in bytes)
+                {
+                    validatorStatusServer.SendByte(b);
+                }
+            }
+
+        }
+        
         private RegisterReader regReader;
         
         private MemoryReader memReader;
@@ -172,6 +201,6 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         private static Validator validator;
         private static IMetadataDebugger metaDebugger;
-
+        private static SocketServerProvider validatorStatusServer;
     }
 }
