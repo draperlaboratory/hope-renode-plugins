@@ -46,6 +46,15 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 	    EVRegTag(sb, sb.Capacity, addr);
         return sb.ToString();
 	}
+        public String GetAllRegMetadata()
+        {
+            string result = "Register Metadata:\n";
+            for(ulong i =0; i <32; i++)
+            {
+                result += System.String.Format("{0} : {1}\n", riscvRegs[riscvRegsOrder[i]], GetRegMetadata(riscvRegsOrder[i]));
+            }
+            return result;
+        }
         public String GetCsrMetadata(UInt64 addr)
 	{
         StringBuilder sb = new StringBuilder(1024);
@@ -131,5 +140,42 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         [Import]
 	private ActionUInt64 EVSetMemWatch;
 
+    private string[] riscvRegs =
+        { "zero ",
+          "ra   ",
+          "sp   ",
+          "gp   ",
+          "tp   ",
+          "t0   ",
+          "t1   ",
+          "t2   ",
+          "s0/fp",
+          "s1   ",
+          "a0   ",
+          "a1   ",
+          "a2   ",
+          "a3   ",
+          "a4   ",
+          "a5   ",
+          "a6   ",
+          "a7   ",
+          "s2   ",
+          "s3   ",
+          "s4   ",
+          "s5   ",
+          "s6   ",
+          "s7   ",
+          "s8   ",
+          "s9   ",
+          "s10  ",
+          "s11  ",
+          "t3   ",
+          "t4   ",
+          "t5   ",
+          "t6   "
+        };
+
+        private ulong[] riscvRegsOrder = {0, 3, 4, 8, 9, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 5, 6, 7, 28, 29, 30, 31, 10, 11, 12, 13, 14, 15, 16, 17, 2, 1};
+                
     }
 }

@@ -30,6 +30,11 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             return Validator.MetaDebugger.GetRegMetadata(addr);
         } 
         
+        public static String AllRegMetadata(this TranslationCPU cpu)
+        {
+            return Validator.MetaDebugger.GetAllRegMetadata();
+        } 
+        
         public static String CsrMetadata(this TranslationCPU cpu, UInt64 addr)
         {
             return Validator.MetaDebugger.GetCsrMetadata(addr);

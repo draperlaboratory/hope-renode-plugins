@@ -9,6 +9,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
     {
         String GetEnvMetadata();
         String GetRegMetadata(UInt64 addr);
+        String GetAllRegMetadata();
         String GetCsrMetadata(UInt64 addr);
         String GetMemMetadata(UInt64 addr);
         void SetEnvMetadataWatch(bool watching);
