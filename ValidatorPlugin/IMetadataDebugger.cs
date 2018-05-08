@@ -17,5 +17,6 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         void SetCsrMetadataWatch(UInt64 addr);
         void SetMemMetadataWatch(UInt64 addr);
         String PolicyViolationMsg();
+        String RuleEvalLog();
     }
 }

@@ -71,6 +71,11 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             return Validator.MetaDebugger.PolicyViolationMsg();
         } 
 
+        public static String RuleEvalLog(this TranslationCPU cpu)
+        {
+            return Validator.MetaDebugger.RuleEvalLog();
+        } 
+
         /* Turn on simulator performance status messages */
         public static void SimPerformance(this TranslationCPU cpu)
         {
@@ -95,6 +100,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         public static Validator Instance => validator;
         public static IMetadataDebugger MetaDebugger => metaDebugger;
         public static bool SimPerformance = false;
+        private static uint lastAddress;
         
         public void BlockBeginHook(uint address, uint blockLength)
         {
@@ -109,6 +115,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             
                 if(cpu.BlockCompleted() && commitPending)
                 {
+
+                    //cpu.Log(LogLevel.Warning, "Commit: {0:X}", lastAddress);
                     if(executionValidator.Commit())
                     {
                         cpu.Log(LogLevel.Info, "Validator Watchpoint Hit");
@@ -121,10 +129,16 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
                         //cpu.ReportAbort("Validator requested pause");
                     }
+                    commitPending = false;
                 }
 
-                commitPending = false;
-            
+
+                if(commitPending && lastAddress != address)
+
+                {
+                    cpu.Log(LogLevel.Error, "Validator skipped commit: {0:X}", lastAddress);
+
+                }
                 if(!executionValidator.Validate(address, cpu.Bus.ReadDoubleWord(address)))
                 {
                     cpu.Log(LogLevel.Info, "Validator Vaidation Failed");
@@ -142,6 +156,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                 }
                 else
                 {
+                    lastAddress = address;
+                    //cpu.Log(LogLevel.Warning, "Validate: {0:X}", lastAddress);
                     commitPending = true;
                 }
 
@@ -168,6 +184,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
             this.cpu = cpu;
             cpu.MaximumBlockSize = 1;
+
             cpu.SetHookAtBlockBegin(BlockBeginHook);
         }
 

@@ -92,6 +92,14 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         }
 
+        public String RuleEvalLog(){
+            
+            StringBuilder sb = new StringBuilder(1024);
+            EVRuleEvalLog(sb, sb.Capacity);
+            return sb.ToString();
+
+        }
+
 	private NativeBinder binder;
 	
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
@@ -107,6 +115,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 	private delegate void ActionMemTag(StringBuilder dest, int n, UInt64 addr);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	private delegate void ActionViolationMsgTag(StringBuilder dest, int n);
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	private delegate void ActionRuleEvalLogTag(StringBuilder dest, int n);
         
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	private delegate void ActionSetPcWatch(bool watching);
@@ -131,6 +141,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 	private ActionMemTag EVMemTag;
 	[Import]
 	private ActionViolationMsgTag EVViolationMsg;
+	[Import]
+        private ActionRuleEvalLogTag EVRuleEvalLog;
         [Import]
 	private ActionSetPcWatch EVSetPcWatch;
         [Import]
