@@ -119,7 +119,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                     //cpu.Log(LogLevel.Warning, "Commit: {0:X}", lastAddress);
                     if(executionValidator.Commit())
                     {
-                        cpu.Log(LogLevel.Info, "Validator Watchpoint Hit");
+                        cpu.Log(LogLevel.Info, "Validator Watchpoint Hit: 0x{0:X}", lastAddress);
                         //cpu.EnterSingleStepModeSafely(new HaltArguments(HaltReason.Step, address, BreakpointType.AccessWatchpoint));
 
                           using(cpu.ObtainPauseGuard(true, address))
@@ -136,12 +136,12 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                 if(commitPending && lastAddress != address)
 
                 {
-                    cpu.Log(LogLevel.Error, "Validator skipped commit: {0:X}", lastAddress);
+                    cpu.Log(LogLevel.Error, "Validator skipped commit: 0x{0:X}", lastAddress);
 
                 }
                 if(!executionValidator.Validate(address, cpu.Bus.ReadDoubleWord(address)))
                 {
-                    cpu.Log(LogLevel.Info, "Validator Vaidation Failed");
+                    cpu.Log(LogLevel.Info, "Validator Vaidation Failed: 0x{0:X}", address);
                     //cpu.EnterSingleStepModeSafely(new HaltArguments(HaltReason.Step, address, BreakpointType.AccessWatchpoint));
 
                       using(cpu.ObtainPauseGuard(true, address))
