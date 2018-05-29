@@ -1,9 +1,22 @@
+.PHONY: all
+.PHONY: install
+.PHONY: clean
 
-all: *.cs
+
+ISP_PREFIX ?= /opt/isp/
+
+all: bin/Debug/ValidatorPlugin.dll
+
+bin/Debug/ValidatorPlugin.dll: *.cs
 	xbuild
 
-install:
-	cp bin/Debug/ValidatorPlugin.dll ../../hope-renode/output/bin/Release
+install: all
+	install -d ../../renode/output/bin/Release/
+	install -p -t ../../renode/output/bin/Release/ bin/Debug/ValidatorPlugin.dll
+	install -d $(ISP_PREFIX)/renode/bin/
+	install -p -t $(ISP_PREFIX)/renode/bin/ bin/Debug/ValidatorPlugin.dll
 
 clean:
-	rm -rf bin obj ../../hope-renode/output/bin/Release/ValidatorPlugin.dll
+	$(RM) -r bin obj
+	$(RM) $(ISP_PREFIX)/renode/bin/ValidatorPlugin.dll
+	$(RM) ../../renode/output/bin/Release/ValidatorPlugin.dll
