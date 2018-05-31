@@ -99,6 +99,20 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             return sb.ToString();
 
         }
+        public String MetaLog(UInt64 addr){
+            
+            StringBuilder sb = new StringBuilder(1024);
+            EVMetaLogShort(sb, sb.Capacity);
+            return System.String.Format("{0:X}: {1}\n",addr, sb.ToString());
+
+        }
+        public String MetaLogDetail(){
+            
+            StringBuilder sb = new StringBuilder(1024);
+            EVMetaLogLong(sb, sb.Capacity);
+            return sb.ToString();
+
+        }
 
 	private NativeBinder binder;
 	
@@ -117,6 +131,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 	private delegate void ActionViolationMsgTag(StringBuilder dest, int n);
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	private delegate void ActionRuleEvalLogTag(StringBuilder dest, int n);
+	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
+	private delegate void ActionMetaLog(StringBuilder dest, int n);
         
 	[UnmanagedFunctionPointer(CallingConvention.Cdecl)]
 	private delegate void ActionSetPcWatch(bool watching);
@@ -142,14 +158,18 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 	[Import]
 	private ActionViolationMsgTag EVViolationMsg;
 	[Import]
-        private ActionRuleEvalLogTag EVRuleEvalLog;
-        [Import]
+	private ActionMetaLog EVMetaLogShort;
+	[Import]
+	private ActionMetaLog EVMetaLogLong;
+	[Import]
+    private ActionRuleEvalLogTag EVRuleEvalLog;
+    [Import]
 	private ActionSetPcWatch EVSetPcWatch;
-        [Import]
+    [Import]
 	private ActionUInt64 EVSetRegWatch;
-        [Import]
+    [Import]
 	private ActionUInt64 EVSetCsrWatch;
-        [Import]
+    [Import]
 	private ActionUInt64 EVSetMemWatch;
 
     private string[] riscvRegs =

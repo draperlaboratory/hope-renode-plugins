@@ -86,6 +86,19 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         {
             Validator.Instance.StartStatusServer(port);
         } 
+
+        /*
+         * Set metadata logging level for messages sent out the status server port
+         * Levels:
+         *         0 : No logging, watchpoints work normally
+         *         1 : Long log message when watchpoint hit, but don't stop for watchpoints
+         *         2 : Short log message on all instructions, watchpoints work normally
+         *         3 : Long log message on all instructions, watchpoints work normally
+         */
+        public static void SetMetaLogLevel(this TranslationCPU cpu, int level)
+        {
+            Validator.MetaLogLevel = level;
+        } 
         
     }
 
@@ -93,6 +106,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
     {
         private Validator()
         {
+            MetaLogLevel = 0;
         }
 
         static Validator() => validator = new Validator();
@@ -100,6 +114,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         public static Validator Instance => validator;
         public static IMetadataDebugger MetaDebugger => metaDebugger;
         public static bool SimPerformance = false;
+        public static int MetaLogLevel {get; set;}
         private static uint lastAddress;
         
         public void BlockBeginHook(uint address, uint blockLength)
@@ -115,9 +130,11 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             
                 if(cpu.BlockCompleted() && commitPending)
                 {
-
+                    bool hitWatch;
+                    hitWatch = executionValidator.Commit();
+                    
                     //cpu.Log(LogLevel.Warning, "Commit: {0:X}", lastAddress);
-                    if(executionValidator.Commit())
+                    if(hitWatch && (MetaLogLevel != 1))
                     {
                         cpu.Log(LogLevel.Info, "Validator Watchpoint Hit: 0x{0:X}", lastAddress);
                         //cpu.EnterSingleStepModeSafely(new HaltArguments(HaltReason.Step, address, BreakpointType.AccessWatchpoint));
@@ -128,6 +145,13 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                           }
 
                         //cpu.ReportAbort("Validator requested pause");
+                    }
+                    // Some logic to implement the levels described above
+                    if(MetaLogLevel > 1 || hitWatch){
+                        if(MetaLogLevel > 0)
+                            SendStatusMessage(metaDebugger.MetaLog(lastAddress));
+                        if((MetaLogLevel == 1) || (MetaLogLevel > 2))
+                            SendStatusMessage(metaDebugger.MetaLogDetail());
                     }
                     commitPending = false;
                 }
