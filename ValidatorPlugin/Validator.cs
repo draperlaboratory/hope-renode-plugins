@@ -22,27 +22,42 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         public static String EnvMetadata(this TranslationCPU cpu)
         {
-            return Validator.MetaDebugger.GetEnvMetadata();
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetEnvMetadata();
         } 
         
         public static String RegMetadata(this TranslationCPU cpu, UInt64 addr)
         {
-            return Validator.MetaDebugger.GetRegMetadata(addr);
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetRegMetadata(addr);
         } 
         
         public static String AllRegMetadata(this TranslationCPU cpu)
         {
-            return Validator.MetaDebugger.GetAllRegMetadata();
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetAllRegMetadata();
         } 
         
         public static String CsrMetadata(this TranslationCPU cpu, UInt64 addr)
         {
-            return Validator.MetaDebugger.GetCsrMetadata(addr);
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetCsrMetadata(addr);
         } 
         
         public static String MemMetadata(this TranslationCPU cpu, UInt64 addr)
         {
-            return Validator.MetaDebugger.GetMemMetadata(addr);
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetMemMetadata(addr);
         } 
 
 
@@ -76,7 +91,10 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         public static String RuleEvalLog(this TranslationCPU cpu)
         {
-            return Validator.MetaDebugger.RuleEvalLog();
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.RuleEvalLog();
         } 
 
         /* Turn on simulator performance status messages */
