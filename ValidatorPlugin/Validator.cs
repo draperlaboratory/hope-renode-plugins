@@ -68,7 +68,10 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         public static String PolicyViolationMsg(this TranslationCPU cpu)
         {
-            return Validator.MetaDebugger.PolicyViolationMsg();
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.PolicyViolationMsg();
         } 
 
         public static String RuleEvalLog(this TranslationCPU cpu)
@@ -99,7 +102,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         {
             Validator.MetaLogLevel = level;
         } 
-        
+
+        private static String noValidatorErrorMsg = "No Validator installed";
     }
 
     public class Validator
