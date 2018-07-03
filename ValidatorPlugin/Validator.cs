@@ -22,22 +22,42 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         public static String EnvMetadata(this TranslationCPU cpu)
         {
-            return Validator.MetaDebugger.GetEnvMetadata();
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetEnvMetadata();
         } 
         
         public static String RegMetadata(this TranslationCPU cpu, UInt64 addr)
         {
-            return Validator.MetaDebugger.GetRegMetadata(addr);
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetRegMetadata(addr);
+        } 
+        
+        public static String AllRegMetadata(this TranslationCPU cpu)
+        {
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetAllRegMetadata();
         } 
         
         public static String CsrMetadata(this TranslationCPU cpu, UInt64 addr)
         {
-            return Validator.MetaDebugger.GetCsrMetadata(addr);
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetCsrMetadata(addr);
         } 
         
         public static String MemMetadata(this TranslationCPU cpu, UInt64 addr)
         {
-            return Validator.MetaDebugger.GetMemMetadata(addr);
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.GetMemMetadata(addr);
         } 
 
 
@@ -63,7 +83,18 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         public static String PolicyViolationMsg(this TranslationCPU cpu)
         {
-            return Validator.MetaDebugger.PolicyViolationMsg();
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.PolicyViolationMsg();
+        } 
+
+        public static String RuleEvalLog(this TranslationCPU cpu)
+        {
+            if(Validator.MetaDebugger == null)
+                return noValidatorErrorMsg;
+            else
+                return Validator.MetaDebugger.RuleEvalLog();
         } 
 
         /* Turn on simulator performance status messages */
@@ -76,13 +107,28 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         {
             Validator.Instance.StartStatusServer(port);
         } 
-        
+
+        /*
+         * Set metadata logging level for messages sent out the status server port
+         * Levels:
+         *         0 : No logging, watchpoints work normally
+         *         1 : Long log message when watchpoint hit, but don't stop for watchpoints
+         *         2 : Short log message on all instructions, watchpoints work normally
+         *         3 : Long log message on all instructions, watchpoints work normally
+         */
+        public static void SetMetaLogLevel(this TranslationCPU cpu, int level)
+        {
+            Validator.MetaLogLevel = level;
+        } 
+
+        private static String noValidatorErrorMsg = "No Validator installed";
     }
 
     public class Validator
     {
         private Validator()
         {
+            MetaLogLevel = 0;
         }
 
         static Validator() => validator = new Validator();
@@ -90,6 +136,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         public static Validator Instance => validator;
         public static IMetadataDebugger MetaDebugger => metaDebugger;
         public static bool SimPerformance = false;
+        public static int MetaLogLevel {get; set;}
+        private static uint lastAddress;
         
         public void BlockBeginHook(uint address, uint blockLength)
         {
@@ -104,9 +152,13 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             
                 if(cpu.BlockCompleted() && commitPending)
                 {
-                    if(executionValidator.Commit())
+                    bool hitWatch;
+                    hitWatch = executionValidator.Commit();
+                    
+                    //cpu.Log(LogLevel.Warning, "Commit: {0:X}", lastAddress);
+                    if(hitWatch && (MetaLogLevel != 1))
                     {
-                        cpu.Log(LogLevel.Info, "Validator Watchpoint Hit");
+                        cpu.Log(LogLevel.Info, "Validator Watchpoint Hit: 0x{0:X}", lastAddress);
                         //cpu.EnterSingleStepModeSafely(new HaltArguments(HaltReason.Step, address, BreakpointType.AccessWatchpoint));
 
                           using(cpu.ObtainPauseGuard(true, address))
@@ -116,13 +168,26 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
                         //cpu.ReportAbort("Validator requested pause");
                     }
+                    // Some logic to implement the levels described above
+                    if(MetaLogLevel > 1 || hitWatch){
+                        if(MetaLogLevel > 0)
+                            SendStatusMessage(metaDebugger.MetaLog(lastAddress));
+                        if((MetaLogLevel == 1) || (MetaLogLevel > 2))
+                            SendStatusMessage(metaDebugger.MetaLogDetail());
+                    }
+                    commitPending = false;
                 }
 
-                commitPending = false;
-            
+
+                if(commitPending && lastAddress != address)
+
+                {
+                    cpu.Log(LogLevel.Error, "Validator skipped commit: 0x{0:X}", lastAddress);
+
+                }
                 if(!executionValidator.Validate(address, cpu.Bus.ReadDoubleWord(address)))
                 {
-                    cpu.Log(LogLevel.Info, "Validator Vaidation Failed");
+                    cpu.Log(LogLevel.Info, "Validator Vaidation Failed: 0x{0:X}", address);
                     //cpu.EnterSingleStepModeSafely(new HaltArguments(HaltReason.Step, address, BreakpointType.AccessWatchpoint));
 
                       using(cpu.ObtainPauseGuard(true, address))
@@ -137,6 +202,8 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                 }
                 else
                 {
+                    lastAddress = address;
+                    //cpu.Log(LogLevel.Warning, "Validate: {0:X}", lastAddress);
                     commitPending = true;
                 }
 
@@ -163,6 +230,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
             this.cpu = cpu;
             cpu.MaximumBlockSize = 1;
+
             cpu.SetHookAtBlockBegin(BlockBeginHook);
         }
 
