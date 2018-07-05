@@ -5,7 +5,7 @@ ap_core: CPU.RiscV32 @ sysbus
     clint: ap_clint
 
 ap_plic: IRQControllers.PlatformLevelInterruptController @ sysbus 0x20000000
-    IRQ -> ap_core@1
+    [0-3] -> ap_core@[8-11]
     numberOfSources: 31
     prioritiesEnabled : false
 
