@@ -6,7 +6,7 @@ using System;
 namespace Antmicro.Renode.Plugins.ValidatorPlugin
 {
     public delegate UInt32 RegisterReader(int regno);
-    public delegate UInt32 MemoryReader(long address);
+    public delegate UInt32 MemoryReader(ulong address);
 
     public interface IExecutionValidator
     {

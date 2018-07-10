@@ -137,9 +137,9 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
         public static IMetadataDebugger MetaDebugger => metaDebugger;
         public static bool SimPerformance = false;
         public static int MetaLogLevel {get; set;}
-        private static uint lastAddress;
+        private static ulong lastAddress;
         
-        public void BlockBeginHook(uint address, uint blockLength)
+        public void BlockBeginHook(ulong address, uint blockLength)
         {
             if(executionValidator != null)
             {
@@ -185,7 +185,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
                     cpu.Log(LogLevel.Error, "Validator skipped commit: 0x{0:X}", lastAddress);
 
                 }
-                if(!executionValidator.Validate(address, cpu.Bus.ReadDoubleWord(address)))
+                if(!executionValidator.Validate((uint)address, cpu.Bus.ReadDoubleWord(address)))
                 {
                     cpu.Log(LogLevel.Info, "Validator Vaidation Failed: 0x{0:X}", address);
                     //cpu.EnterSingleStepModeSafely(new HaltArguments(HaltReason.Step, address, BreakpointType.AccessWatchpoint));
@@ -225,7 +225,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             metaDebugger = ev;
             
             regReader = (int regno) => {return cpu.GetRegisterUnsafe(regno);};
-            memReader = (long address) => {return cpu.Bus.ReadDoubleWord(address);};
+            memReader = (ulong address) => {return cpu.Bus.ReadDoubleWord(address);};
             executionValidator.SetCallbacks(regReader, memReader);
 
             this.cpu = cpu;
