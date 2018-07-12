@@ -1,0 +1,2 @@
+using "platforms/cpus/dover-riscv-cpu.repl"
+using "platforms/boards/dover-base-soc.repl"

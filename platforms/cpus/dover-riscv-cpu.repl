@@ -1,0 +1,15 @@
+// AP core only
+ap_core: CPU.RiscV32 @ sysbus
+    cpuType: "rv32im"
+    privilegeArchitecture: PrivilegeArchitecture.Priv1_09
+    clint: ap_clint
+
+ap_plic: IRQControllers.PlatformLevelInterruptController @ sysbus 0x20000000
+    [0-3] -> ap_core@[8-11]
+    numberOfSources: 31
+    prioritiesEnabled : false
+
+// Power/Reset/Clock/Interrupt
+ap_clint: IRQControllers.CoreLevelInterruptor  @ sysbus 0x44000000
+    frequency: 66000000
+    [0, 1] -> ap_core@[3, 7]
