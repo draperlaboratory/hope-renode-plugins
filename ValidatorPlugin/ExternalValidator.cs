@@ -12,10 +12,10 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 {
     public class ExternalValidator : IExecutionValidator, IMetadataDebugger, IEmulationElement
     {
-	public ExternalValidator(string shared_lib_name, string policy_path, string tag_info)
+  public ExternalValidator(string shared_lib_name, string policy_path, string tag_info, string soc_cfg)
 	{
 	    binder = new NativeBinder(this, shared_lib_name);
-        EVSetMetadata(policy_path, tag_info);
+      EVSetMetadata(policy_path, tag_info, soc_cfg);
 
 	}
 
@@ -142,7 +142,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 	[Import]
 	private ActionSetCallbacks EVSetCallbacks;
 	[Import]
-	private ActionStringString EVSetMetadata;
+	private ActionStringStringString EVSetMetadata;
 	[Import]
 	private FuncUInt32UInt32UInt32 EVValidate;
 	[Import]
