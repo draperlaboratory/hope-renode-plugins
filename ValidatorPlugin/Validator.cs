@@ -9,7 +9,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 {
     public static class ValidatorExtensions
     {
-        public static void SetExternalValidator(this TranslationCPU cpu, string so_file, string pol_path, string taginfo_file, string soc_cfg)
+        public static void SetExternalValidator(this TranslationCPU cpu, string so_file, string validator_cfg_path)
         {
             /*
              *  Validators can only function correctly if they are called for every
@@ -17,7 +17,7 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
              *  so that tlib will not execute arbitrary sized basic blocks atomically
              *  from the perspective of Renode.
             */
-            Validator.Instance.SetExternalValidator(cpu, so_file, pol_path, taginfo_file, soc_cfg);
+            Validator.Instance.SetExternalValidator(cpu, so_file, validator_cfg_path);
         }
 
         public static String EnvMetadata(this TranslationCPU cpu)
@@ -217,9 +217,9 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             }
         }
 
-        public void SetExternalValidator(TranslationCPU cpu, string so_file, string pol_path, string taginfo_file, string soc_cfg)
+        public void SetExternalValidator(TranslationCPU cpu, string so_file, string validator_cfg_path)
         {
-            ExternalValidator ev = new ExternalValidator(so_file, pol_path, taginfo_file, soc_cfg);
+            ExternalValidator ev = new ExternalValidator(so_file, validator_cfg_path);
             
             executionValidator = ev;
             metaDebugger = ev;
