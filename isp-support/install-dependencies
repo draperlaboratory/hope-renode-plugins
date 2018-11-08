@@ -10,12 +10,10 @@ apt-get install -y \
         automake \
         g++ \
         git \
-        gksu \
         gtk-sharp2 \
         libgtk2.0-dev \
         libtool \
         mono-complete \
         python2.7 \
-        realpath \
         screen \
         uml-utilities
