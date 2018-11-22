@@ -16,3 +16,6 @@ uart2: UART.NS16550 @ sysbus 0x40002000
 
 uart3: UART.NS16550 @ sysbus 0x40003000
     wideRegisters: true
+
+test: Memory.MappedMemory @ sysbus 0x00100000
+    size: 0x1000
