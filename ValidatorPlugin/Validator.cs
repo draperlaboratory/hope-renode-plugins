@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Text;
 using System.Diagnostics;
 using Antmicro.Renode.Logging;
@@ -103,9 +104,9 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             Validator.SimPerformance = true;;
         } 
         
-        public static void StartStatusServer(this TranslationCPU cpu, int port)
+        public static void ValidatorStatusLogger(this TranslationCPU cpu, string path)
         {
-            Validator.Instance.StartStatusServer(port);
+            Validator.Instance.ValidatorStatusLogger(path);
         } 
 
         /*
@@ -234,22 +235,17 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
             cpu.SetHookAtBlockBegin(BlockBeginHook);
         }
 
-        public void StartStatusServer(int port)
+        public void ValidatorStatusLogger(string path)
         {
-            validatorStatusServer = new SocketServerProvider();
-            validatorStatusServer.Start(port);
-            cpu.Log(LogLevel.Info, "Starting Validator Status Server on port: {0}", port);
+            stream = new StreamWriter(path);
+            cpu.Log(LogLevel.Info, "Logging validator status to {0}", path);
         }
 
         private void SendStatusMessage(String msg)
         {
-            if(validatorStatusServer != null)
+            if(stream != null)
             {
-                Byte[] bytes = Encoding.ASCII.GetBytes(msg);
-                foreach(var b in bytes)
-                {
-                    validatorStatusServer.SendByte(b);
-                }
+		stream.Write(msg);
             }
 
         }
@@ -269,6 +265,6 @@ namespace Antmicro.Renode.Plugins.ValidatorPlugin
 
         private static Validator validator;
         private static IMetadataDebugger metaDebugger;
-        private static SocketServerProvider validatorStatusServer;
+        private static StreamWriter stream;
     }
 }
