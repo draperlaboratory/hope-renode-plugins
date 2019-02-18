@@ -21,10 +21,10 @@ $(PROJECTS):
 	$(MAKE) -C $@
 
 install: $(INSTALL_PROJECTS)
-	install -d $(ISP_PREFIX)renode/platforms/boards
-	install -d $(ISP_PREFIX)renode/platforms/cpus
-	cp -ru platforms/boards/* $(ISP_PREFIX)renode/platforms/boards
-	cp -ru platforms/cpus/* $(ISP_PREFIX)renode/platforms/cpus
+	install -d $(ISP_PREFIX)/renode/platforms/boards
+	install -d $(ISP_PREFIX)/renode/platforms/cpus
+	cp -ru platforms/boards/* $(ISP_PREFIX)/renode/platforms/boards
+	cp -ru platforms/cpus/* $(ISP_PREFIX)/renode/platforms/cpus
 
 $(INSTALL_PROJECTS):
 	$(MAKE) -C $(@:install-%=%) install
