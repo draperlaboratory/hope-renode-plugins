@@ -3,7 +3,7 @@
 .PHONY: clean
 
 
-ISP_PREFIX ?= /opt/isp/
+ISP_PREFIX ?= $(HOME)/.local/isp/
 
 all: bin/Debug/ValidatorPlugin.dll
 
